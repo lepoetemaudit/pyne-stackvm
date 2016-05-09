@@ -17,8 +17,12 @@ opcode_map = {
     "+": opcodes.ADD,
     "-": opcodes.SUB,
     "=": opcodes.SUB,  # Compare actually just subtracts
+    "COPY": opcodes.COPY,
     "JZ": opcodes.JZ,
+    "JG": opcodes.JG,
+    "JL": opcodes.JL,
     "PUTCH": opcodes.PUTCH,
+    "PUTDEC": opcodes.PUTDEC,
     "HALT": opcodes.HALT,
 }
 
@@ -131,8 +135,6 @@ def compile_string(code): # type: (str) -> List[int]
             code_points.append(token)
 
         elif typ == LABEL:
-            print(typ, token)
-            print(len(code_points))
             symbol_table.append((len(code_points), token))
 
         elif typ == LABEL_REF:

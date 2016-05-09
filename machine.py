@@ -109,6 +109,12 @@ def _op_push(machine): # type: (Machine) -> Machine
     word, machine = next_instruction(machine) 
     return push_stack(machine, word)
 
+# 0x03 - COPY
+def _op_copy(machine):
+    word = pop_stack(machine)
+    return push_stack(push_stack(machine, word), word)
+
+
 # 0x20 - ADD
 def _op_add(machine):
     return push_stack(
@@ -151,10 +157,17 @@ def _op_putch(machine):
     sys.stdout.write(chr(val))
     return machine
 
+# 0x51 - PUTDEC
+def _op_putdec(machine):
+    val = pop_stack(machine)
+    print(val)
+    return machine
+
     
 dispatch_table = {
     # Stack operations
     opcodes.PUSH: Instruction(opcodes.PUSH, "PUSH", _op_push),
+    opcodes.COPY: Instruction(opcodes.COPY, "COPY", _op_copy),
     
     # Arithmetic operations
     opcodes.ADD: Instruction(opcodes.ADD, "ADD", _op_add),
@@ -165,8 +178,10 @@ dispatch_table = {
     opcodes.JG: Instruction(opcodes.JG, "JG", _op_jmp_greater),
     opcodes.JL: Instruction(opcodes.JG, "JL", _op_jmp_less),
 
+
     # IO operations
-    opcodes.PUTCH: Instruction(opcodes.PUTCH, "PUTCH", _op_putch)
+    opcodes.PUTCH: Instruction(opcodes.PUTCH, "PUTCH", _op_putch),
+    opcodes.PUTDEC: Instruction(opcodes.PUTDEC, "PUTDEC", _op_putdec)
 }  # type: Dict[int, Instruction]
 
 

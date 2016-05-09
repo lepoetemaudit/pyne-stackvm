@@ -1,0 +1,13 @@
+10
+
+:LOOP
+1 -
+
+COPY
+PUTDEC
+
+COPY
+0 = @LOOP JG
+"Y"
+PUTCH
+0

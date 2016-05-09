@@ -7,6 +7,8 @@ Define constants for our opcodes
 # Stack operations
 PUSH = 0x01
 POP = 0x02
+COPY = 0x03
+SWAP = 0x04
 
 # Arithmetic operations
 ADD = 0x20
