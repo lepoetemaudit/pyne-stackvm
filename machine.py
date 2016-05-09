@@ -30,12 +30,14 @@ Instruction = namedtuple(
      'name',
      'execute']) # type: Tuple[int, int, str, str, Callable[[Machine], Machine]]
 
+
 def describe_instruction(instruction): # type: (Instruction) -> str
     """
     Return a string representation of an Instruction
     """
 
     return "0x%.2x -> %s" % instruction[0:2]
+
 
 class MachineError(BaseException):
     """
@@ -45,6 +47,7 @@ class MachineError(BaseException):
     def __init__(self, message, machine): # (MachineError) -> MachineError
         super(MachineError, self).__init__(self, message)
         self.machine = machine
+
 
 def w(val): # type: (int) -> int
     """
@@ -57,6 +60,7 @@ def w(val): # type: (int) -> int
         val += 0x10000 
 
     return val
+
 
 def push_stack(machine, val): # type: (Machine, int) -> Machine
     """
@@ -75,6 +79,7 @@ def pop_stack(machine): # type: (Machine) -> int
         raise MachineError("Stack underflow: %x", machine)
 
     return machine.main_stack.pop()
+
 
 def next_instruction(machine): # type: (Machine) -> Tuple[int, Machine]
     # Get the next instruction, return the updated machine state
@@ -114,6 +119,14 @@ def _op_add(machine):
 def _op_sub(machine):
     op2, op1 = (pop_stack(machine) for _ in range(2))
     return push_stack(machine, op1 - op2)
+
+# 0x40 - JZ (Jump if zero)
+def _op_jmp_zero(machine):
+    new_ip, result = (pop_stack(machine) for _ in range(2))
+    if result == 0:
+        return Machine(
+            machine.main_stack, machine.call_stack, new_ip, machine.code)
+    return machine
     
 dispatch_table = {
     # Stack operations
@@ -121,8 +134,12 @@ dispatch_table = {
     
     # Arithmetic operations
     opcodes.ADD: Instruction(opcodes.ADD, "ADD", _op_add),
-    opcodes.SUB: Instruction(opcodes.SUB, "SUB", _op_sub)
-} # type: Dict[int, Instruction]
+    opcodes.SUB: Instruction(opcodes.SUB, "SUB", _op_sub),
+
+    # Control operations
+    opcodes.JZ: Instruction(opcodes.JZ, "JZ", _op_jmp_zero)
+}  # type: Dict[int, Instruction]
+
 
 def make_machine(code=None): # type: (Optional[List[int]]) -> Machine
     """
@@ -135,7 +152,8 @@ def make_machine(code=None): # type: (Optional[List[int]]) -> Machine
         code=code or [])
 
 
-def step_machine(machine, debug=True): # type: (Machine, Optional[bool]) -> Machine
+
+def step_machine(machine, debug=True):  # type: (Machine, Optional[bool]) -> Machine
     """
     Step the machine (i.e. execute the instruction at the current
     instruction_pointer.
@@ -144,7 +162,7 @@ def step_machine(machine, debug=True): # type: (Machine, Optional[bool]) -> Mach
     """
     opcode, machine = next_instruction(machine)
 
-   # Match and execute on instruction with our dispatch table
+    # Match and execute on instruction with our dispatch table
     instruction = dispatch_table.get(opcode)
     if not instruction:
         raise MachineError("Got bad opcode: %x" % opcode, machine)
@@ -155,7 +173,8 @@ def step_machine(machine, debug=True): # type: (Machine, Optional[bool]) -> Mach
 
     return instruction.execute(machine)
 
-def run_machine(machine, debug=True): # type: (Machine, Optional[bool]) -> Machine
+
+def run_machine(machine, debug=True):  # type: (Machine, Optional[bool]) -> Machine
     """
     Run the machine until it errors or we hit a HALT instruction
     """
@@ -191,5 +210,5 @@ if __name__ == '__main__':
         size = os.path.getsize(sys.argv[1])
         code = array.array('h') # type: array.array
         code.fromfile(open(sys.argv[1]), size/2)
-        print(run_code_for_result(code))
+        print(run_code_for_result(code, debug=True))
     

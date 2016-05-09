@@ -15,7 +15,10 @@ import machine
 
 opcode_map = {
     "+": opcodes.ADD,
-    "-": opcodes.PUSH,
+    "-": opcodes.SUB,
+    "=": opcodes.SUB,  # Compare actually just subtracts
+    "JZ": opcodes.JZ,
+    "HALT": opcodes.HALT,
 }
 
 # Token types
@@ -42,7 +45,7 @@ def get_tokens(code):
             elif head in string.digits:
                 token_type = NUMBER
                 current_token += head
-            elif head in string.ascii_letters + "-+/*":
+            elif head in string.ascii_letters + "-+/*=":
                 token_type = INSTRUCTION
                 current_token += head
             elif head == '"':

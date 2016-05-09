@@ -12,6 +12,9 @@ POP = 0x02
 ADD = 0x20
 SUB = 0x21
 
+# Control operations
+JZ = 0x30
+
 # IO
 PUTCH = 0x50
 PUTDEC = 0x51
