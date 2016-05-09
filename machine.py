@@ -127,6 +127,23 @@ def _op_jmp_zero(machine):
         return Machine(
             machine.main_stack, machine.call_stack, new_ip, machine.code)
     return machine
+
+# 0x41 - JG (Jump if greater)
+def _op_jmp_greater(machine):
+    new_ip, result = (pop_stack(machine) for _ in range(2))
+    if result > 0:
+        return Machine(
+            machine.main_stack, machine.call_stack, new_ip, machine.code)
+    return machine
+
+# 0x42 - JG (Jump if greater)
+def _op_jmp_less(machine):
+    new_ip, result = (pop_stack(machine) for _ in range(2))
+    if result < 0:
+        return Machine(
+            machine.main_stack, machine.call_stack, new_ip, machine.code)
+    return machine
+
     
 dispatch_table = {
     # Stack operations
@@ -137,7 +154,9 @@ dispatch_table = {
     opcodes.SUB: Instruction(opcodes.SUB, "SUB", _op_sub),
 
     # Control operations
-    opcodes.JZ: Instruction(opcodes.JZ, "JZ", _op_jmp_zero)
+    opcodes.JZ: Instruction(opcodes.JZ, "JZ", _op_jmp_zero),
+    opcodes.JG: Instruction(opcodes.JG, "JG", _op_jmp_greater),
+    opcodes.JL: Instruction(opcodes.JG, "JL", _op_jmp_less),
 }  # type: Dict[int, Instruction]
 
 

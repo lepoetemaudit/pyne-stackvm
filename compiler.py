@@ -25,6 +25,8 @@ opcode_map = {
 STRING = "S"
 NUMBER = "N"
 INSTRUCTION = "I"
+LABEL = "L"
+LABEL_REF = "R"
 
 class CompilerError(Exception):
     pass
@@ -50,6 +52,10 @@ def get_tokens(code):
                 current_token += head
             elif head == '"':
                 token_type = STRING
+            elif head == ":":
+                token_type = LABEL
+            elif head == "@":
+                token_type = LABEL_REF
 
         elif token_type == NUMBER:
             if current_token=='0' and head=='x':
@@ -95,24 +101,56 @@ def get_tokens(code):
             else:
                 current_token += head
 
+        elif token_type in (LABEL, LABEL_REF):
+            if head in string.ascii_letters:
+                current_token += head
+            elif head in string.whitespace:
+                yield current_token, token_type
+                token_type = None
+                current_token = ''
+            else:
+                raise CompilerError("Line %d: Bad character '%s' on label" % (
+                    line_number, head))
         if head == '\n':
             line_number += 1
 
     yield (current_token, token_type)
 
 def compile_string(code): # type: (str) -> List[int]
-    output = [] # type: List[int]
+    code_points = [] # type: List[int]
+    symbol_table = []
     for token, typ in get_tokens(code + "\n"):
         if typ == NUMBER:
-            output += [opcodes.PUSH, machine.w(token)]
+            code_points += [opcodes.PUSH, machine.w(token)]
         elif typ == STRING:
             # We reverse it so we it pops out in the right order
             for c in reversed(token):
-                output += [opcodes.PUSH, ord(c)]
+                code_points += [opcodes.PUSH, ord(c)]
         elif typ == INSTRUCTION:
-            output.append(token)
-            
-    output.append(opcodes.HALT)
+            code_points.append(token)
+
+        elif typ == LABEL:
+            print(typ, token)
+            print(len(code_points))
+            symbol_table.append((len(code_points), token))
+
+        elif typ == LABEL_REF:
+            code_points += [opcodes.PUSH, token]
+
+    code_points.append(opcodes.HALT)
+
+    # Do a final pass and replace any refs with their code positions
+    output = []
+    for c in code_points:
+        if isinstance(c, str):
+            try:
+                label = next(l for l in symbol_table if c == l[1])
+                output.append(label[0])
+            except StopIteration:
+                raise CompilerError("Unknown symbol: %s" % token)
+        else:
+            output.append(c)
+
     return output
 
 def serialize(code):

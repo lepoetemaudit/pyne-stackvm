@@ -14,6 +14,8 @@ SUB = 0x21
 
 # Control operations
 JZ = 0x30
+JG = 0x31
+JL = 0x32
 
 # IO
 PUTCH = 0x50
