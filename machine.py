@@ -150,6 +150,16 @@ def _op_jmp_less(machine):
             machine.main_stack, machine.call_stack, new_ip, machine.code)
     return machine
 
+# 0x43 - CALL (Call a subroutine)
+def _op_call(machine):
+    new_ip = pop_stack(machine)
+
+    machine.call_stack.append(machine.ip+1)
+    return Machine(
+        machine.main_stack, machine.call_stack, new_ip, machine.code)
+
+
+# 0x44 - RET (Return from a subroutine)
 
 # 0x50 - PUTCH
 def _op_putch(machine):
@@ -176,7 +186,8 @@ dispatch_table = {
     # Control operations
     opcodes.JZ: Instruction(opcodes.JZ, "JZ", _op_jmp_zero),
     opcodes.JG: Instruction(opcodes.JG, "JG", _op_jmp_greater),
-    opcodes.JL: Instruction(opcodes.JG, "JL", _op_jmp_less),
+    opcodes.JL: Instruction(opcodes.JL, "JL", _op_jmp_less),
+    opcodes.CALL: Instruction(opcodes.CALL, "CALL", _op_call),
 
 
     # IO operations

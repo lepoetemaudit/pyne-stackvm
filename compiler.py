@@ -24,6 +24,8 @@ opcode_map = {
     "PUTCH": opcodes.PUTCH,
     "PUTDEC": opcodes.PUTDEC,
     "HALT": opcodes.HALT,
+    "CALL": opcodes.CALL,
+    "RET": opcodes.RET,
 }
 
 # Token types
@@ -63,7 +65,7 @@ def get_tokens(code):
                 token_type = LABEL_REF
 
         elif token_type == NUMBER:
-            if current_token=='0' and head=='x':
+            if current_token == '0' and head == 'x':
                 # It's a hex number
                 current_token += head
                 continue
