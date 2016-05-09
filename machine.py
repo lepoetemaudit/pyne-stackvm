@@ -144,6 +144,13 @@ def _op_jmp_less(machine):
             machine.main_stack, machine.call_stack, new_ip, machine.code)
     return machine
 
+
+# 0x50 - PUTCH
+def _op_putch(machine):
+    val = pop_stack(machine)
+    sys.stdout.write(chr(val))
+    return machine
+
     
 dispatch_table = {
     # Stack operations
@@ -157,6 +164,9 @@ dispatch_table = {
     opcodes.JZ: Instruction(opcodes.JZ, "JZ", _op_jmp_zero),
     opcodes.JG: Instruction(opcodes.JG, "JG", _op_jmp_greater),
     opcodes.JL: Instruction(opcodes.JG, "JL", _op_jmp_less),
+
+    # IO operations
+    opcodes.PUTCH: Instruction(opcodes.PUTCH, "PUTCH", _op_putch)
 }  # type: Dict[int, Instruction]
 
 
@@ -229,5 +239,5 @@ if __name__ == '__main__':
         size = os.path.getsize(sys.argv[1])
         code = array.array('h') # type: array.array
         code.fromfile(open(sys.argv[1]), size/2)
-        print(run_code_for_result(code, debug=True))
-    
+        print("\n" + str(run_code_for_result(code)))
+

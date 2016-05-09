@@ -21,6 +21,7 @@ JL = 0x32
 PUTCH = 0x50
 PUTDEC = 0x51
 PUTHEX = 0x52
+PUTS = 0x53
 
 # Machine operations
 HALT = 0x00

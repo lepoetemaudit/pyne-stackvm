@@ -18,6 +18,7 @@ opcode_map = {
     "-": opcodes.SUB,
     "=": opcodes.SUB,  # Compare actually just subtracts
     "JZ": opcodes.JZ,
+    "PUTCH": opcodes.PUTCH,
     "HALT": opcodes.HALT,
 }
 
@@ -153,8 +154,11 @@ def compile_string(code): # type: (str) -> List[int]
 
     return output
 
+
 def serialize(code):
+    # Serialize code to bytes
     return array.array('h', code)
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
